@@ -1,49 +1,106 @@
-import 'package:chickenaccount/screens/signupscreen.dart';
+import 'package:chickenaccount/screens/home.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:chickenaccount/screens/loginscreen.dart';
-import 'package:parse_server_sdk/parse_server_sdk.dart';
+import 'package:firebase_core/firebase_core.dart';
+//import 'package:parse_server_sdk/parse_server_sdk.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final keyApplicationId = 'U3REz6bKFFysqQyzUsHdm9kwoaIkCno2PNoyoFG0';
-  final keyClientKey = 'H8wAcvr5D3vw3NihlmBDXtFhAj0Yuu1hvI4mNzGc';
-  final keyParseServerUrl = 'https://parseapi.back4app.com';
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+        options: const FirebaseOptions(
+            apiKey: 'AIzaSyCE_Lgbsd_qzmIAX5R9Bm0gBlUXUDU6sUs',
+            appId: "1:167830565516:web:b5e50f7f97e6c0c1eb01a9",
+            messagingSenderId: "167830565516",
+            projectId: "al-jilani-chicken-account",
+            storageBucket: "al-jilani-chicken-account.appspot.com"));
+  } else {
+    await Firebase.initializeApp();
+  }
+
+  /*const keyApplicationId = 'U3REz6bKFFysqQyzUsHdm9kwoaIkCno2PNoyoFG0';
+  const keyClientKey = 'H8wAcvr5D3vw3NihlmBDXtFhAj0Yuu1hvI4mNzGc';
+  const keyParseServerUrl = 'https://parseapi.back4app.com';
 
   await Parse().initialize(keyApplicationId, keyParseServerUrl,
-      clientKey: keyClientKey, autoSendSessionId: true);
-
+      clientKey: keyClientKey, autoSendSessionId: true);*/
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  /* ParseUser? currentUser;
+
+  Future<bool> hasUserLogged() async {
+    ParseUser? currentUser = await ParseUser.currentUser() as ParseUser?;
+    if (currentUser == null) {
+      return false;
+    }
+    //Checks whether the user's session token is valid
+    final ParseResponse? parseResponse =
+        await ParseUser.getCurrentUserFromServer(currentUser.sessionToken!);
+
+    if (parseResponse?.success == null || !parseResponse!.success) {
+      //Invalid session. Logout
+      await currentUser.logout();
+      return false;
+    } else {
+      return true;
+    }
+  }*/
+
+  Future<bool> hasUserLogged() async {
+    return true;
+  }
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          // This is the theme of your application.
-          //
-          // TRY THIS: Try running your application with "flutter run". You'll see
-          // the application has a blue toolbar. Then, without quitting the app,
-          // try changing the seedColor in the colorScheme below to Colors.green
-          // and then invoke "hot reload" (save your changes or press the "hot
-          // reload" button in a Flutter-supported IDE, or press "r" if you used
-          // the command line to start the app).
-          //
-          // Notice that the counter didn't reset back to zero; the application
-          // state is not lost during the reload. To reset the state, use hot
-          // restart instead.
-          //
-          // This works for code too, not just values: Most code changes can be
-          // tested with just a hot reload.
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        home:
-            const SignUpScreen() //MyHomePage(title: 'Flutter Demo Home Page'),
-        );
+      title: 'Chicken Account',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: FutureBuilder<bool>(
+          future: hasUserLogged(),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.none:
+              case ConnectionState.waiting:
+                return const Scaffold(
+                  body: Center(
+                    child: SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: CircularProgressIndicator()),
+                  ),
+                );
+              default:
+                if (snapshot.hasData && snapshot.data!) {
+                  return const Home();
+                  // return UserPage();
+                } else {
+                  return const LoginScreen();
+                }
+            }
+          }),
+    );
   }
+
+  /*userpagelogin() {
+    Future currentUser = ParseUser.currentUser();
+    if (currentUser != null) {
+      //runApp(const LoginScreen());
+    } else {
+      // runApp(const Home());
+    }
+  }*/
 }

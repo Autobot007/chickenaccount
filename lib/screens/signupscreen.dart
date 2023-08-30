@@ -1,7 +1,9 @@
+import 'package:chickenaccount/resources/auth_methods.dart';
+import 'package:chickenaccount/screens/home.dart';
 import 'package:chickenaccount/screens/loginscreen.dart';
 import 'package:flutter/material.dart';
-import 'package:chickenaccount/widgets/text_field_input.dart';
-import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+//import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+//import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -14,8 +16,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _firmNameController = TextEditingController();
-  final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
+
+  final AuthMethods auth = AuthMethods();
 
   @override
   void dispose() {
@@ -23,7 +26,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _firmNameController.dispose();
-    _userNameController.dispose();
     _mobileController.dispose();
   }
 
@@ -50,6 +52,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             const SizedBox(height: 24),
             TextFormField(
+              controller: _firmNameController,
               keyboardType: TextInputType.name,
               decoration: InputDecoration(
                   hintText: "Enter Your Firm Name",
@@ -63,19 +66,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
 
             TextFormField(
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                  hintText: "Enter Your Username",
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0)),
-                  labelText: "Username"),
-              textInputAction: TextInputAction.next,
-            ),
-            const SizedBox(
-              height: 12,
-            ),
-
-            TextFormField(
+              controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                   hintText: "Enter Your Email Address",
@@ -89,6 +80,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
 
             TextFormField(
+              controller: _mobileController,
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(
                   hintText: "Enter Your Mobile no.",
@@ -102,6 +94,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
 
             TextFormField(
+              controller: _passwordController,
               keyboardType: TextInputType.visiblePassword,
               decoration: InputDecoration(
                   hintText: "Enter Your Password",
@@ -113,8 +106,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
             const SizedBox(height: 24),
             InkWell(
-                onTap: () {
-                  doUserRegistration();
+                onTap: () async {
+                  String res = await auth.signUpUser(
+                      firmname: _firmNameController.text,
+                      email: _emailController.text,
+                      mobile: _mobileController.text,
+                      password: _passwordController.text);
+                  if (res == 'success') {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Home()),
+                    );
+                  }
+                  print(res);
+                  // doUserRegistration();
                 },
                 child: Container(
                   width: double.infinity,
@@ -155,7 +160,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ),
             const SizedBox(height: 24),
-
             //textfields
             //textfields
             //button
@@ -166,7 +170,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  void showSuccess() {
+  /*void showSuccess() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -211,18 +215,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    final user = ParseUser.createUser(
-      username,
-      password,
-      email,
-    );
-
-    var response = await user.signUp();
-
-    if (response.success) {
-      showSuccess();
+    if (username.isEmpty || password.isEmpty || email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please Enter Details')),
+      );
     } else {
-      showError(response.error!.message);
+      final user = ParseUser.createUser(
+        username,
+        password,
+        email,
+      );
+
+      var response = await user.signUp();
+
+      if (response.success) {
+        ParseUser currentUser = await ParseUser.currentUser();
+        await currentUser.saveInStorage('USER');
+        const storage = FlutterSecureStorage();
+        await storage.write(key: 'USERNAME', value: username);
+        await storage.write(key: 'PASSWORD', value: password);
+        await storage.write(
+            key: 'FIRMNAME', value: _firmNameController.text.trim());
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+          (Route<dynamic> route) => false,
+        );
+
+        showSuccess();
+      } else {
+        showError(response.error!.message);
+      }
     }
-  }
+  }*/
 }

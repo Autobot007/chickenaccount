@@ -1,12 +1,13 @@
-import 'package:flutter/material.dart';
+//import 'package:flutter/material.dart';
 
-class TextFieldInput extends StatelessWidget {
+/*lass TextFieldInput extends StatelessWidget {
   final TextEditingController textEditingController;
   final bool isPass;
   final String hintText;
   final TextInputType textInputType;
   const TextFieldInput(
-      {Key? key,
+      {super.key,
+      Key? keys,
       required this.textEditingController,
       required this.hintText,
       this.isPass = false,
@@ -17,7 +18,7 @@ class TextFieldInput extends StatelessWidget {
     final inputBorder =
         OutlineInputBorder(borderSide: Divider.createBorderSide(context));
 
-    return TextField(
+    return TextFormField(
       controller: textEditingController,
       decoration: InputDecoration(
         hintText: hintText,
@@ -31,4 +32,4 @@ class TextFieldInput extends StatelessWidget {
       obscureText: isPass,
     );
   }
-}
+}*/
