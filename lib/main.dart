@@ -1,3 +1,4 @@
+import 'package:chickenaccount/firebase_options.dart';
 import 'package:chickenaccount/screens/home.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,8 @@ void main() async {
             projectId: "al-jilani-chicken-account",
             storageBucket: "al-jilani-chicken-account.appspot.com"));
   } else {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
   }
 
   /*const keyApplicationId = 'U3REz6bKFFysqQyzUsHdm9kwoaIkCno2PNoyoFG0';
@@ -57,7 +59,7 @@ class _MyAppState extends State<MyApp> {
   }*/
 
   Future<bool> hasUserLogged() async {
-    return true;
+    return false;
   }
 
   // This widget is the root of your application.

@@ -1,5 +1,7 @@
+import 'package:chickenaccount/resources/auth_methods.dart';
 import 'package:chickenaccount/screens/signupscreen.dart';
 import 'package:flutter/material.dart';
+import 'package:chickenaccount/screens/home.dart';
 //import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 //import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -14,12 +16,35 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool isLoggedIn = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+  }
+
+  void loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String res = await AuthMethods().loginUser(
+        email: _emailController.text, password: _passwordController.text);
+    if (res == "success") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+    } else {
+      print("some error occured");
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -68,12 +93,13 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
               InkWell(
                   onTap: () {
-                    if (_emailController.text.trim().isEmpty &&
+                    if (_emailController.text.trim().isEmpty ||
                         _passwordController.text.trim().isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Please Enter Details')),
                       );
                     } else {
+                      loginUser();
                       //doUserLogin();
                     }
                   },
@@ -86,13 +112,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius:
                                 BorderRadius.all(Radius.circular(4)))),
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Login',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
+                          ),
                   )),
               const SizedBox(height: 24),
               const Text(

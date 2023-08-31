@@ -17,6 +17,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _firmNameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
+  bool _isLoading = false;
 
   final AuthMethods auth = AuthMethods();
 
@@ -27,6 +28,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _passwordController.dispose();
     _firmNameController.dispose();
     _mobileController.dispose();
+  }
+
+  void signUpUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String res = await auth.signUpUser(
+        firmname: _firmNameController.text,
+        email: _emailController.text,
+        mobile: _mobileController.text,
+        password: _passwordController.text);
+
+    if (res == 'success') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
+    }
+    setState(() {
+      _isLoading = false;
+    });
+    print(res);
   }
 
   @override
@@ -106,21 +129,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
             const SizedBox(height: 24),
             InkWell(
-                onTap: () async {
-                  String res = await auth.signUpUser(
-                      firmname: _firmNameController.text,
-                      email: _emailController.text,
-                      mobile: _mobileController.text,
-                      password: _passwordController.text);
-                  if (res == 'success') {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const Home()),
-                    );
-                  }
-                  print(res);
-                  // doUserRegistration();
-                },
+                onTap: signUpUser // () async {
+                // doUserRegistration();
+                //},
+                ,
                 child: Container(
                   width: double.infinity,
                   alignment: Alignment.center,
@@ -129,13 +141,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       color: Colors.green,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(4)))),
-                  child: const Text(
-                    'SignUp',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'SignUp',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          ),
+                        ),
                 )),
             const SizedBox(height: 24),
             const Text(
