@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:chickenaccount/models/user.dart' as model;
 
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -19,12 +20,16 @@ class AuthMethods {
         // register user
         UserCredential cred = await _auth.createUserWithEmailAndPassword(
             email: email, password: password);
+
+        model.User user = model.User(
+            email: email,
+            uid: cred.user!.uid,
+            firmName: firmname,
+            mobile: mobile);
         //add user to firestore
-        await _firestore.collection('users').doc(cred.user!.uid).set({
-          'email': email,
-          'uid': cred.user!.uid,
-          'mobile': mobile,
-        });
+        await _firestore.collection('users').doc(cred.user!.uid).set(
+              user.toJson(),
+            );
         res = 'success';
       }
     } // on FirebaseAuthException catch (err){
