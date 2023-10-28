@@ -24,7 +24,7 @@ class AuthMethods {
         model.User user = model.User(
             email: email,
             uid: cred.user!.uid,
-            firmName: firmname,
+            firmname: firmname,
             mobile: mobile);
         //add user to firestore
         await _firestore.collection('users').doc(cred.user!.uid).set(
