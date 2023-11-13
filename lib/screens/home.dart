@@ -38,7 +38,7 @@ class _HomeState extends State<Home> {
         appBar: AppBar(
           title: const Text('Trial version 1'),
         ),
-        drawer: Drawer1(),
+        drawer: const Drawer1(),
         body: SingleChildScrollView(
             child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -71,7 +71,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                 )),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             InkWell(
                 //billing
                 onTap: () {
@@ -96,7 +96,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                 )),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             InkWell(
                 //new customer
                 onTap: () {

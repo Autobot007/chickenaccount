@@ -1,6 +1,9 @@
+import 'package:chickenaccount/screens/billing.dart';
+import 'package:chickenaccount/screens/newcustomer.dart';
+import 'package:chickenaccount/widgets/newcustomer.dart';
 import 'package:flutter/material.dart';
-import 'billing.dart';
-import 'newcustomer.dart';
+
+import 'deliverychallanentry.dart';
 
 class Drawer1 extends StatefulWidget {
   const Drawer1({super.key});
@@ -11,7 +14,9 @@ class Drawer1 extends StatefulWidget {
 
 class _Drawer1State extends State<Drawer1> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Drawer(
       // Add a ListView to the drawer. This ensures the user can scroll
       // through the options in the drawer if there isn't enough vertical
@@ -20,22 +25,22 @@ class _Drawer1State extends State<Drawer1> {
         // Important: Remove any padding from the ListView.
         padding: EdgeInsets.zero,
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.green,
-            ),
-            child: Text(
-              '',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
+          const UserAccountsDrawerHeader(
+              accountName: Text(
+                'Fatema Traders',
+                style: TextStyle(fontSize: 20),
               ),
-            ),
-          ),
+              accountEmail: Text(
+                'dart123@gmail.com',
+                style: TextStyle(fontSize: 15),
+              )),
           ListTile(
             title: const Text('Delivery Chalan'),
             onTap: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const DeliveryChallanEntry()));
               // Update the state of the app.
               // ...
             },
@@ -43,6 +48,8 @@ class _Drawer1State extends State<Drawer1> {
           ListTile(
             title: const Text('Billing '),
             onTap: () {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const Billing()));
               // Update the state of the app.
               // ...
             },
@@ -50,7 +57,11 @@ class _Drawer1State extends State<Drawer1> {
           ListTile(
             title: const Text('Add new Customer '),
             onTap: () {
-              // Update the state of the app.
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          const NewCustomer())); // Update the state of the app.
               // ...
             },
           ),

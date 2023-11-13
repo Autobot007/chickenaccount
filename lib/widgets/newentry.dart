@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chickenaccount/models/entry.dart' as model;
-import 'package:flutter/material.dart';
+
 
 class NewEntry {
   final User? _auth = FirebaseAuth.instance.currentUser;
@@ -9,23 +9,23 @@ class NewEntry {
 
   Future<String> newEntry(
       {required String date,
-      required String customer,
+      required String shopName,
       required String nos,
       required String weight,
       required String rate,
       required String total,
       required bool billed}) async {
     bool billed = false;
-    String res = 'some error occured';
+ 
     try {
-      if (customer.isNotEmpty &&
+      if (shopName.isNotEmpty &&
           nos.isNotEmpty &&
           weight.isNotEmpty &&
           rate.isNotEmpty &&
           total.isNotEmpty) {
         model.Entry entry = model.Entry(
             date: date,
-            customer: customer,
+            shopName: shopName,
             nos: nos,
             weight: weight,
             rate: rate,

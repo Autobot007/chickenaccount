@@ -35,31 +35,32 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Chicken Account',
-        theme: ThemeData(
-          primarySwatch: Colors.green,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: StreamBuilder(
-            stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+      title: 'Chicken Account',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.green,
+                ),
+              );
+            }
+            if (snapshot.connectionState == ConnectionState.active) {
+              if (snapshot.hasData) {
+                return const Home();
+              } else if (snapshot.hasError) {
                 return const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.green,
-                  ),
+                  child: Text("Some error occured"),
                 );
               }
-              if (snapshot.connectionState == ConnectionState.active) {
-                if (snapshot.hasData) {
-                  return const Home();
-                } else if (snapshot.hasError) {
-                  return const Center(
-                    child: Text("Some error occured"),
-                  );
-                }
-              }
-              return const LoginScreen();
-            }));
+            }
+            return const LoginScreen();
+          }),
+    );
   }
 }

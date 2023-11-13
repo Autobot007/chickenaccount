@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
-
 class Entry {
   final String date;
-  final String customer;
+  final String shopName;
   final String nos;
   final String weight;
   final String rate;
@@ -11,7 +9,7 @@ class Entry {
 
   const Entry(
       {required this.date,
-      required this.customer,
+      required this.shopName,
       required this.nos,
       required this.weight,
       required this.rate,
@@ -19,7 +17,7 @@ class Entry {
       required this.billed});
   Map<String, dynamic> toJson() => {
         "Date": date,
-        "CustomerName": customer,
+        "ShopName": shopName,
         "ContactNo": nos,
         "Weight": weight,
         "Rate": rate,

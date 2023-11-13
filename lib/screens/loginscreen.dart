@@ -40,7 +40,6 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = false;
       });
     } else {
-      print("some error occured");
       setState(() {
         _isLoading = false;
       });

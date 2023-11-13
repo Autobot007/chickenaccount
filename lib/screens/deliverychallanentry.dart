@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:chickenaccount/models/entry.dart' as model;
 
 class DeliveryChallanEntry extends StatefulWidget {
   const DeliveryChallanEntry({super.key, this.restorationID});
@@ -25,9 +24,10 @@ class _DeliveryChallanEntryState extends State<DeliveryChallanEntry> {
   final NewEntry entry = NewEntry();
   var selectedDate = DateTime.now();
 
-  String _selectedCustomer = '';
+ 
   bool _isLoading = false;
   bool billed = false;
+
 
   @override
   void setState(VoidCallback fn) {
@@ -52,7 +52,7 @@ class _DeliveryChallanEntryState extends State<DeliveryChallanEntry> {
       appBar: AppBar(
           backgroundColor: Colors.green,
           shadowColor: Colors.black,
-          title: Text(
+          title: const Text(
             "Delivery Challan Entry",
             style: TextStyle(
               color: Colors.white,
@@ -61,21 +61,21 @@ class _DeliveryChallanEntryState extends State<DeliveryChallanEntry> {
       drawer: const Drawer1(),
       body: SingleChildScrollView(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             const SizedBox(height: 24),
             Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
               Text(
                 DateFormat('dd-MM-yyyy').format(selectedDate),
-                style: TextStyle(fontSize: 25),
+                style: const TextStyle(fontSize: 25),
               ),
               const SizedBox(
                 width: 40,
               ),
               ElevatedButton(
                 onPressed: () => _selectDate(context),
-                child: Text('Select Date'),
+                child: const Text('Select Date'),
               )
             ]),
             const SizedBox(
@@ -84,8 +84,14 @@ class _DeliveryChallanEntryState extends State<DeliveryChallanEntry> {
             TypeAheadField<String>(
               hideOnEmpty: true,
               textFieldConfiguration: TextFieldConfiguration(
+                textCapitalization: TextCapitalization.words,
                 controller: _shopNameController,
                 decoration: InputDecoration(
+                  /*suffixIcon: _shopNameController.text == ''
+                      ? Icon(
+                          Icons.person_search_sharp,
+                        )
+                      : Icon(Icons.person_add_sharp),*/
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.0)),
                   labelText: 'Customer',
@@ -239,7 +245,7 @@ class _DeliveryChallanEntryState extends State<DeliveryChallanEntry> {
     });
     String res = await entry.newEntry(
         date: DateFormat('dd-MM-yyyy').format(selectedDate),
-        customer: _shopNameController.text,
+        shopName: _shopNameController.text,
         nos: _nosController.text,
         weight: _weightController.text,
         rate: _rateController.text,

@@ -1,9 +1,6 @@
 import 'package:chickenaccount/widgets/Newcustomer.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'drawer.dart';
-import 'package:chickenaccount/models/customer.dart' as model;
 
 class NewCustomer extends StatefulWidget {
   const NewCustomer({super.key});
@@ -38,7 +35,6 @@ class _NewCustomerState extends State<NewCustomer> {
         contactNo: _contactNoController.text);
 
     if (res == 'success') {
-      print(res);
       _shopNameController.clear();
       _customerNameController.clear();
       _contactNoController.clear();
@@ -46,11 +42,10 @@ class _NewCustomerState extends State<NewCustomer> {
     setState(() {
       _isLoading = false;
     });
-    print(res);
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext newCustomerContext) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add New Customer'),
@@ -62,7 +57,7 @@ class _NewCustomerState extends State<NewCustomer> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               TextFormField(
@@ -76,7 +71,7 @@ class _NewCustomerState extends State<NewCustomer> {
                     labelText: "Shop Name"),
                 textInputAction: TextInputAction.next,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               TextFormField(
@@ -90,7 +85,7 @@ class _NewCustomerState extends State<NewCustomer> {
                     labelText: "Customer Name"),
                 textInputAction: TextInputAction.next,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               TextFormField(
@@ -103,7 +98,7 @@ class _NewCustomerState extends State<NewCustomer> {
                     labelText: "Contact No"),
                 textInputAction: TextInputAction.next,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               InkWell(

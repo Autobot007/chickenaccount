@@ -1,6 +1,6 @@
+import 'package:chickenaccount/screens/newbill.dart';
 import 'package:flutter/material.dart';
-
-import 'drawer.dart';
+import 'package:chickenaccount/screens/drawer.dart';
 
 class Billing extends StatefulWidget {
   const Billing({super.key});
@@ -17,7 +17,66 @@ class _BillingState extends State<Billing> {
         title: const Text('Billing'),
       ),
       drawer: const Drawer1(),
-      body: SingleChildScrollView(child: Container()),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 20,
+              ),
+              InkWell(
+                  onTap: () {
+                    // Inside a widget's onPressed or other event handler
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const NewBill()), // NewScreen is the widget for the new route
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: const ShapeDecoration(
+                        color: Colors.green,
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(4)))),
+                    child: const Text(
+                      'New Bill',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                  )),
+              const SizedBox(
+                height: 20,
+              ),
+              InkWell(
+                  child: Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: const ShapeDecoration(
+                    color: Colors.green,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)))),
+                child: const Text(
+                  'Old Bill',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                ),
+              )),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
