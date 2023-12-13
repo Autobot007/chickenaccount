@@ -1,10 +1,12 @@
 import 'package:chickenaccount/screens/drawer.dart';
+import 'package:chickenaccount/screens/newcustomer.dart';
 import 'package:chickenaccount/widgets/newentry.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+
 
 class DeliveryChallanEntry extends StatefulWidget {
   const DeliveryChallanEntry({super.key, this.restorationID});
@@ -24,16 +26,8 @@ class _DeliveryChallanEntryState extends State<DeliveryChallanEntry> {
   final NewEntry entry = NewEntry();
   var selectedDate = DateTime.now();
 
- 
   bool _isLoading = false;
   bool billed = false;
-
-
-  @override
-  void setState(VoidCallback fn) {
-    // TODO: implement setState
-    super.setState(fn);
-  }
 
   double total = 0;
   @override
@@ -87,6 +81,15 @@ class _DeliveryChallanEntryState extends State<DeliveryChallanEntry> {
                 textCapitalization: TextCapitalization.words,
                 controller: _shopNameController,
                 decoration: InputDecoration(
+                  suffixIcon: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const NewCustomer()),
+                        );
+                      },
+                      child: const Icon(Icons.person_add)),
                   /*suffixIcon: _shopNameController.text == ''
                       ? Icon(
                           Icons.person_search_sharp,
@@ -143,7 +146,7 @@ class _DeliveryChallanEntryState extends State<DeliveryChallanEntry> {
                 double rate = double.tryParse(_rateController.text) ?? 0;
                 double result = (kg * rate);
                 setState(() {
-                  total = result;
+                  total = double.parse(result.toStringAsFixed(4));
                 });
               },
               controller: _weightController,

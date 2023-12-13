@@ -119,7 +119,7 @@ class _NewCustomerState extends State<NewCustomer> {
                             ),
                           )
                         : const Text(
-                            'SignUp',
+                            'Add',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,

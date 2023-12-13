@@ -18,7 +18,7 @@ class Entry {
   Map<String, dynamic> toJson() => {
         "Date": date,
         "ShopName": shopName,
-        "ContactNo": nos,
+        "Nos": nos,
         "Weight": weight,
         "Rate": rate,
         "Total": total,

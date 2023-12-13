@@ -37,8 +37,16 @@ dependencies:
     sdk: flutter
   flutter_secure_storage: ^8.0.0
   flutter_typeahead: ^4.8.0
+  gap: ^3.0.1
   intl: ^0.18.1
   parse_server_sdk_flutter: ^5.1.1
+  path_provider: ^2.1.1
+  screenshot: ^2.1.0
+  share: ^2.0.4
+  spannable_grid: ^0.3.0
+  image_picker: ^0.8.4+9
+  shared_preferences: ^2.2.2
+  share_plus: ^7.2.1
 
 dev_dependencies:
   flutter_lints: ^2.0.0

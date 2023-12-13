@@ -1,7 +1,12 @@
+import 'package:chickenaccount/models/user.dart' as model;
 import 'package:chickenaccount/resources/auth_methods.dart';
 import 'package:chickenaccount/screens/signupscreen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:chickenaccount/screens/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 //import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 //import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -31,7 +36,20 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     String res = await AuthMethods().loginUser(
         email: _emailController.text, password: _passwordController.text);
+    SharedPreferences localData = await SharedPreferences.getInstance();
     if (res == "success") {
+      final User? user = FirebaseAuth.instance.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> userSnapShot =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user!.uid)
+              .get();
+      localData.setString('FirmName', userSnapShot.data()?['firmname']);
+      localData.setString('Email', userSnapShot.data()?['email']);
+      localData.setString('Mobile', userSnapShot.data()?['mobile']);
+      print(localData.getString('FirmName'));
+      print(localData.getString('Email'));
+      print(localData.getString('Mobile'));
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const Home()),

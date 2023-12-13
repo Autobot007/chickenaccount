@@ -1,10 +1,8 @@
+import 'package:chickenaccount/screens/billscreen.dart';
 import 'package:chickenaccount/screens/drawer.dart';
 import 'package:chickenaccount/screens/newcustomer.dart';
-import 'package:chickenaccount/widgets/newcustomer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
@@ -21,6 +19,7 @@ class _NewBillState extends State<NewBill> {
   final querySnapshotfirestore = FirebaseFirestore.instance;
   final User? _auth = FirebaseAuth.instance.currentUser;
   List<DocumentSnapshot> _entries = [];
+  Set<int> _checkedItems = {};
   List<DocumentSnapshot> _selectedEntries = [];
 
   @override
@@ -50,7 +49,7 @@ class _NewBillState extends State<NewBill> {
                                   builder: (context) => const NewCustomer()),
                             );
                           },
-                          child: Icon(Icons.person_add)),
+                          child: const Icon(Icons.person_add)),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(20.0)),
                       labelText: 'Customer',
@@ -75,6 +74,8 @@ class _NewBillState extends State<NewBill> {
               ),
               ElevatedButton(
                 onPressed: () {
+                  _selectedEntries = [];
+                  _checkedItems = {};
                   getEntry(_shopNameController.text);
                 },
                 child: const Text("Search"),
@@ -88,23 +89,134 @@ class _NewBillState extends State<NewBill> {
                 child: ListView.builder(
                   itemBuilder: (context, index) {
                     return CheckboxListTile(
-                      title: Text(_entries[index]["ShopName"]),
-                      tileColor: _entries[index]['Billed'] == true
-                          ? Colors.green[200]
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _entries[index]["ShopName"],
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 15),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Row(
+                            children: [
+                              const Text(
+                                "Date:",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                "${_entries[index]["Date"]}",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600),
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                      tileColor: _checkedItems.contains(index)
+                          ? Colors.green[100]
                           : Colors.white,
-                      value: _entries[index]['Billed'],
+                      value: _checkedItems.contains(index),
                       onChanged: (bool? value) {
-                        querySnapshotfirestore
-                            .collection('users')
-                            .doc(_auth!.uid)
-                            .collection('entry')
-                            .doc(_entries[index].id)
-                            .update({"Billed": value});
                         setState(() {
-                          _entries[index].Billed = value;
+                          if (value!) {
+                            _checkedItems.add(index);
+                            _selectedEntries.add(_entries[index]);
+                            print(_selectedEntries);
+                          } else {
+                            _checkedItems.remove(index);
+                            _selectedEntries.remove(_entries[index]);
+                          }
+
+                          //_selectedEntries.add(_entries[index]);
+                          // print(_selectedEntries);
                         });
                       },
-                      subtitle: Text(_entries[index]["Weight"]),
+                      subtitle: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        "Nos:",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w900),
+                                      ),
+                                      Text("${_entries[index]["Nos"]}",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w600))
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        "Weight:",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w900),
+                                      ),
+                                      Text("${_entries[index]["Weight"]}",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w600))
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        "Rate:",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w900),
+                                      ),
+                                      Text("${_entries[index]["Rate"]}",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w600))
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text("Total:",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w900)),
+                                      Text("${_entries[index]["Total"]}",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w600))
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     );
                   },
                   itemCount: _entries.length,
@@ -112,25 +224,20 @@ class _NewBillState extends State<NewBill> {
             const SizedBox(
               height: 10,
             ),
-            ElevatedButton(onPressed: () {}, child: Text('Generate'))
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => BillScreen(),
+                          settings:
+                              RouteSettings(arguments: _selectedEntries)));
+                },
+                child: const Text('Generate'))
           ],
         ),
       ),
     );
-  }
-
-  // Set the value of the "Billed" property of the object at index `index` in the array `_entries` to the value `value`.
-  void updateBillingStatus(
-      List<DocumentSnapshot> entries, int index, bool value) {
-    entries[index]["Billed"] = value;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    setState(() {
-      _shopNameController.dispose();
-    });
   }
 
   Future<List<String>> getSuggestions(String query) async {
@@ -189,6 +296,7 @@ class _NewBillState extends State<NewBill> {
       print("error fetching data");
     }
   }
+}
 
 /*
     querySnapshot
@@ -214,4 +322,4 @@ class _NewBillState extends State<NewBill> {
 
 
     print(querySnapshot);*/
-}
+
