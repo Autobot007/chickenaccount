@@ -30,8 +30,9 @@ class _Drawer1State extends State<Drawer1> {
   Widget build(
     BuildContext context,
   ) {
-    getDetails();
-    setState(() {});
+    setState(() {
+      getDetails();
+    });
 
     return Drawer(
       // Add a ListView to the drawer. This ensures the user can scroll

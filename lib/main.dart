@@ -1,4 +1,5 @@
 import 'package:chickenaccount/firebase_options.dart';
+import 'package:chickenaccount/sample.dart';
 import 'package:chickenaccount/screens/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -40,27 +41,31 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+
+      /* Home */
       home: StreamBuilder(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.green,
+              ),
+            );
+          }
+          if (snapshot.connectionState == ConnectionState.active) {
+            if (snapshot.hasData) {
+              return const Home();
+            } else if (snapshot.hasError) {
               return const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.green,
-                ),
+                child: Text("Some error occured"),
               );
             }
-            if (snapshot.connectionState == ConnectionState.active) {
-              if (snapshot.hasData) {
-                return const Home();
-              } else if (snapshot.hasError) {
-                return const Center(
-                  child: Text("Some error occured"),
-                );
-              }
-            }
-            return const LoginScreen();
-          }),
+          }
+          return const LoginScreen();
+        },
+      ),
+      //home: Sample(),
     );
   }
 }
