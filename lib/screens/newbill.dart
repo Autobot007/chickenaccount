@@ -229,9 +229,10 @@ class _NewBillState extends State<NewBill> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => BillScreen(),
-                          settings:
-                              RouteSettings(arguments: _selectedEntries)));
+                        builder: (context) => BillScreen(
+                          entriesDocumentSnapshot: _selectedEntries,
+                        ),
+                      ));
                 },
                 child: const Text('Generate'))
           ],

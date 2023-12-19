@@ -1,68 +1,45 @@
 import 'dart:io';
-import 'dart:ui' as ui;
-import 'dart:ui';
-import 'package:flutter/services.dart';
-import 'package:screenshot/screenshot.dart';
+import 'dart:typed_data';
+
+import 'package:chickenaccount/screens/billscreen.dart';
 import 'package:chickenaccount/screens/drawer.dart';
-import 'package:chickenaccount/widgets/newbillwidget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'dart:async';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:permission_handler/permission_handler.dart';
 
-//import 'package:take_screenshot/take_screenshot.dart';
+class OldBillScreen extends StatefulWidget {
+  final DocumentSnapshot billDocumentSnapshot;
 
-class BillScreen extends StatefulWidget {
-  final List<DocumentSnapshot> entriesDocumentSnapshot;
-  const BillScreen({super.key, required this.entriesDocumentSnapshot});
-
-  // ignore: no_leading_underscores_for_local_identifiers
-  //BillScreen({super.key, required this.entries});
-
-  // ignore: unused_field
+  const OldBillScreen({super.key, required this.billDocumentSnapshot});
 
   @override
-  State<BillScreen> createState() => _BillScreenState();
+  State<OldBillScreen> createState() => _OldBillScreenState();
 }
 
-class _BillScreenState extends State<BillScreen> {
-  // final TakeScreenshotController _takeScreenshotContro
-
-  List<DocumentSnapshot> getEntries = [];
+class _OldBillScreenState extends State<OldBillScreen> {
+  late DocumentSnapshot billDocumentsnapShot;
+  String? tradersName = '';
+  String? mobile = '';
+  List<dynamic> entries = [];
   @override
   void initState() {
     super.initState();
     getDetails();
-    getEntries = widget.entriesDocumentSnapshot;
-    total = getSum(getEntries);
-    grandTotal = double.parse(total.toString()).toStringAsFixed(2);
-    getCustomer();
+    billDocumentsnapShot = widget.billDocumentSnapshot;
+    entries = billDocumentsnapShot['Entries'];
   }
 
-//     TakeScreenshotController();
-  final _screenshotController = ScreenshotController();
-  final User? user = FirebaseAuth.instance.currentUser;
-  final FirebaseFirestore billingFinalSnapshot = FirebaseFirestore.instance;
-  final TextEditingController _balanceController = TextEditingController();
-  Map<String, dynamic> customer = {};
-  final NewBillWidget bill = NewBillWidget();
-  bool _isLoading = false;
-  String grandTotal = '0';
-  double total = 0;
-  double balance = 0;
+  Future<void> getDetails() async {
+    SharedPreferences localData = await SharedPreferences.getInstance();
+    tradersName = localData.getString('FirmName');
+    mobile = localData.getString('Mobile');
+  }
 
-  List<Map<String, dynamic>> billEntries = [];
-  bool billed = false;
-  String? tradersName = '';
-  String? mobile = '';
-
-  Uint8List? imageData;
-
+  ScreenshotController _screenshotController = ScreenshotController();
   void saveToGallery(BuildContext context) {
     _screenshotController.capture().then((Uint8List? image) {
       //it will capture the ss
@@ -97,28 +74,9 @@ class _BillScreenState extends State<BillScreen> {
     return false;
   }
 
-  Future<void> getDetails() async {
-    SharedPreferences localData = await SharedPreferences.getInstance();
-    tradersName = localData.getString('FirmName');
-    mobile = localData.getString('Mobile');
-  }
-
-  //int numberofentries = 5;
-  Future<void> getCustomer() async {
-    DocumentSnapshot<Map<String, dynamic>> customerSnapShot =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user!.uid)
-            .collection('customers')
-            .doc(getEntries[0]['ShopName'])
-            .get();
-    setState(() {
-      customer.addAll(customerSnapShot.data()!);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(),
@@ -145,10 +103,9 @@ class _BillScreenState extends State<BillScreen> {
                       decoration: BoxDecoration(border: Border.all(width: 2)),
                       child: Column(
                         children: [
-                          // Image.asset("assets/example.jpg"),
                           const SizedBox(height: 30),
                           Text(
-                            tradersName.toString(),
+                            '$tradersName', // FirmName
                             style: const TextStyle(
                                 fontSize: 30, fontWeight: FontWeight.bold),
                           ),
@@ -156,7 +113,8 @@ class _BillScreenState extends State<BillScreen> {
                             height: 2,
                           ),
                           Text(
-                            '(${mobile.toString()})',
+                            '($mobile)' //FirmName Mobile number
+                            ,
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Container(
@@ -178,10 +136,11 @@ class _BillScreenState extends State<BillScreen> {
                                           MainAxisAlignment.start,
                                       children: [
                                         const Text(
-                                          "ShopName :",
+                                          "ShopName :   ",
                                         ),
                                         Text(
-                                          '${customer["ShopName"]}',
+                                          //ShopName
+                                          '${billDocumentsnapShot['ShopName']}',
                                           style: const TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
@@ -193,9 +152,10 @@ class _BillScreenState extends State<BillScreen> {
                                     Row(
                                       children: [
                                         const Text(
-                                          "Customer Name:",
+                                          "Customer Name :   ",
                                         ),
-                                        Text("${customer["CustomerName"]}",
+                                        Text(
+                                            '${billDocumentsnapShot['CustomerName']}', //Customer Name
                                             style: const TextStyle(
                                                 fontWeight: FontWeight.bold))
                                       ],
@@ -210,11 +170,10 @@ class _BillScreenState extends State<BillScreen> {
                                     Row(
                                       children: [
                                         const Text(
-                                          'Date:',
+                                          'Date : ',
                                         ),
                                         Text(
-                                          DateFormat('dd-MM-yyyy')
-                                              .format(DateTime.now()),
+                                          '${billDocumentsnapShot['Date']}', //Date from snapshot
                                           style: const TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
@@ -228,7 +187,8 @@ class _BillScreenState extends State<BillScreen> {
                                         const Text(
                                           "Phone No:",
                                         ),
-                                        Text("${customer["ContactNo"]}",
+                                        Text(
+                                            '${billDocumentsnapShot['ContactNo']}', //customer conatct number
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ))
@@ -295,26 +255,26 @@ class _BillScreenState extends State<BillScreen> {
                                           textAlign: TextAlign.center,
                                         ),
                                       ]),
-                                  for (int i = 0; i < getEntries.length; i++)
+                                  for (int i = 0; i < entries.length; i++)
                                     //total =double.tryParse(getEntries[i]['Total'])
 
                                     TableRow(
                                       children: <Widget>[
                                         Text(
-                                          getEntries[i]['Date'],
+                                          entries[i]['Date'],
                                           textAlign: TextAlign.center,
                                           style: const TextStyle(height: 2),
                                         ),
-                                        Text(getEntries[i]['Nos'],
+                                        Text(entries[i]['Nos'],
                                             textAlign: TextAlign.center,
                                             style: const TextStyle(height: 2)),
-                                        Text(getEntries[i]['Weight'],
+                                        Text(entries[i]['Weight'],
                                             textAlign: TextAlign.center,
                                             style: const TextStyle(height: 2)),
-                                        Text(getEntries[i]['Rate'],
+                                        Text(entries[i]['Rate'],
                                             textAlign: TextAlign.center,
                                             style: const TextStyle(height: 2)),
-                                        Text(getEntries[i]['Total'],
+                                        Text(entries[i]['Total'],
                                             textAlign: TextAlign.center,
                                             style: const TextStyle(height: 2)),
                                       ],
@@ -347,7 +307,7 @@ class _BillScreenState extends State<BillScreen> {
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
-                                'Total : ${double.parse(total.toString()).toStringAsFixed(2)} ',
+                                'Total :  ${billDocumentsnapShot['Total']}',
                               ),
                             ),
                           ),
@@ -381,35 +341,19 @@ class _BillScreenState extends State<BillScreen> {
                                     'Balance :  ',
                                   ),
                                   Container(
-                                    decoration:
-                                        BoxDecoration(border: Border.all()),
+                                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                    alignment: Alignment.centerRight,
                                     height: 36.4,
                                     width:
                                         MediaQuery.of(context).size.width / 3.5,
-                                    child: TextField(
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                      onChanged: (totalbalance) {
-                                        double totalbalance = double.tryParse(
-                                                _balanceController.text) ??
-                                            0;
-                                        setState(() {
-                                          balance = double.parse(
-                                              total.toStringAsFixed(2));
-                                          grandTotal = (total + totalbalance)
-                                              .toStringAsFixed(2);
-                                        });
-                                      },
-                                      textAlign: TextAlign.end,
-                                      controller: _balanceController,
-                                      keyboardType: TextInputType.number,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(1.0)),
+                                    child: Text(
+                                      '${billDocumentsnapShot['Balance']}',
+                                      style: TextStyle(
+                                        wordSpacing: 10,
+                                        height: 2,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      textInputAction: TextInputAction.done,
                                     ),
                                   )
                                 ],
@@ -441,7 +385,7 @@ class _BillScreenState extends State<BillScreen> {
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
-                                'Total Bill Amount :    $grandTotal ',
+                                'Total Bill Amount : ${billDocumentsnapShot['GrandTotal']}',
                               ),
                             ),
                           ),
@@ -453,32 +397,11 @@ class _BillScreenState extends State<BillScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    billed
-                        ? const SizedBox()
-                        : ElevatedButton(
-                            onPressed: () {
-                              saveBillFunction();
-                              //saveBillFunction();
-                            },
-                            child: _isLoading
-                                ? const Center(
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Text('Save Bill',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                    )),
-                          ),
-                    billed
-                        ? ElevatedButton(
-                            onPressed: () async {
-                              saveToGallery(context);
-                            },
-                            child: const Text('Share'))
-                        : const SizedBox()
+                    ElevatedButton(
+                        onPressed: () async {
+                          saveToGallery(context);
+                        },
+                        child: const Text('Share'))
                   ],
                 )
               ],
@@ -488,110 +411,4 @@ class _BillScreenState extends State<BillScreen> {
       ),
     );
   }
-
-  saveBillFunction() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      for (int i = 0; i < getEntries.length; i++) {
-        billingFinalSnapshot
-            .collection('users')
-            .doc(user!.uid)
-            .collection('entry')
-            .doc(getEntries[i].id)
-            .update({'Billed': true});
-      }
-      String res = await bill.newBill(
-        shopName: customer['ShopName'],
-        customerName: customer['CustomerName'],
-        contactNo: customer['ContactNo'],
-        date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-        entry: billEntries,
-        total: total,
-        balance: _balanceController.text,
-        grandTotal: grandTotal,
-      );
-
-      if (res == 'success') {
-        billed = true;
-      }
-      setState(() {
-        _isLoading = false;
-      });
-    } catch (e) {}
-  }
-}
-
-List<Map<String, dynamic>> billEntriestoMap(List<DocumentSnapshot> getEntries) {
-  List<Map<String, dynamic>> billEntries = [];
-  for (int i = 0; i < getEntries.length; i++) {
-    Map<String, dynamic> singleEntry = {
-      'Date': getEntries[i]['Date'],
-      'Nos': getEntries[i]['Nos'],
-      'Weight': getEntries[i]['Weight'],
-      'Rate': getEntries[i]['Rate'],
-      'Total': getEntries[i]['Total']
-    };
-    billEntries.add(singleEntry);
-  }
-
-  return billEntries;
-}
-
-class ShareData {
-  final String text;
-  final File? file;
-
-  ShareData({required this.text, this.file});
-
-  String get filePath => file!.path;
-}
-
-/*
-
-*/
-/*List<Map<String, dynamic>> combinedEntriesFunction(
-    List<DocumentSnapshot> entries) {
-  void bubblesort(List<Map<String, dynamic>> entries) {}
-  void swap(List<Map<String, dynamic>> entrisEntries) {}
-  List<Map<String, dynamic>> finalEntries = [];
-  for (int i = 0; i < entries.length; i++) {
-    int currentPosition = 0;
-    if (i == 0) {
-      finalEntries.add(entries[i].data() as Map<String, dynamic>);
-    } else if (finalEntries[currentPosition]['Date'] == entries[i]['Date']) {
-      finalEntries[currentPosition]['Nos'] =
-          ((double.tryParse(finalEntries[currentPosition]['Nos']) ?? 0) +
-                  (double.tryParse(entries[i]['Nos']) ?? 0))
-              .toString();
-      finalEntries[currentPosition]['Weight'] =
-          ((double.tryParse(finalEntries[currentPosition]['Weight']) ?? 0) +
-                  (double.tryParse(entries[i]['Weight']) ?? 0))
-              .toStringAsFixed(2);
-
-      finalEntries[currentPosition]['Total'] =
-          ((double.tryParse(finalEntries[currentPosition]['Weight']) ?? 0) *
-                  (double.tryParse(finalEntries[currentPosition]['Rate']) ?? 0))
-              .toStringAsFixed(2);
-
-      //finalEntries[currentPosition]['Total'] = finalEntries[currentPosition]
-      //      ['Weight'] *
-      //finalEntries[currentPosition]['Rate'];
-    } else {
-      currentPosition++;
-      finalEntries.add(entries[i].data() as Map<String, dynamic>);
-    }
-  }
-
-  return finalEntries;
-}*/
-
-double getSum(List<DocumentSnapshot> getEntries) {
-  double total = 0;
-  for (int i = 0; i < getEntries.length; i++) {
-    total += double.tryParse(getEntries[i]['Total']) ?? 0;
-  }
-  return total;
 }

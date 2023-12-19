@@ -1,4 +1,5 @@
 import 'package:chickenaccount/screens/newbill.dart';
+import 'package:chickenaccount/screens/oldbillsearchlist.dart';
 import 'package:flutter/material.dart';
 import 'package:chickenaccount/screens/drawer.dart';
 
@@ -58,21 +59,30 @@ class _BillingState extends State<Billing> {
                 height: 20,
               ),
               InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const OldBillSearch()), // NewScreen is the widget for the new route
+                    );
+                  },
                   child: Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: const ShapeDecoration(
-                    color: Colors.green,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)))),
-                child: const Text(
-                  'Old Bill',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
-                ),
-              )),
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: const ShapeDecoration(
+                        color: Colors.green,
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(4)))),
+                    child: const Text(
+                      'Old Bill',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                  )),
             ],
           ),
         ),
