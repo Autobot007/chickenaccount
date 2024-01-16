@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:ui' as ui;
-import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:chickenaccount/screens/drawer.dart';
@@ -101,20 +100,23 @@ class _BillScreenState extends State<BillScreen> {
     SharedPreferences localData = await SharedPreferences.getInstance();
     tradersName = localData.getString('FirmName');
     mobile = localData.getString('Mobile');
+    setState(() {});
   }
 
   //int numberofentries = 5;
   Future<void> getCustomer() async {
-    DocumentSnapshot<Map<String, dynamic>> customerSnapShot =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user!.uid)
-            .collection('customers')
-            .doc(getEntries[0]['ShopName'])
-            .get();
-    setState(() {
-      customer.addAll(customerSnapShot.data()!);
-    });
+
+    //getting data of customer to be billed w
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+        .instance
+        .collection('users')
+        .doc(user!.uid)
+        .collection('customers')
+        .where('ShopName', isEqualTo: getEntries[0]['ShopName'])
+        .get();
+
+    customer = querySnapshot.docs.first.data();
+    setState(() {});
   }
 
   @override
@@ -158,6 +160,9 @@ class _BillScreenState extends State<BillScreen> {
                           Text(
                             '(${mobile.toString()})',
                             style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 15,
                           ),
                           Container(
                             padding: EdgeInsets.symmetric(
@@ -297,7 +302,6 @@ class _BillScreenState extends State<BillScreen> {
                                       ]),
                                   for (int i = 0; i < getEntries.length; i++)
                                     //total =double.tryParse(getEntries[i]['Total'])
-
                                     TableRow(
                                       children: <Widget>[
                                         Text(
@@ -319,13 +323,11 @@ class _BillScreenState extends State<BillScreen> {
                                             style: const TextStyle(height: 2)),
                                       ],
                                     ),
-
                                   //TableRow(),
                                 ]),
                           ),
                           Container(
                             //CONATINER 1
-
                             width: MediaQuery.of(context).size.width * 1.5,
                             alignment: Alignment.centerRight,
                             padding: EdgeInsets.fromLTRB(
@@ -380,38 +382,52 @@ class _BillScreenState extends State<BillScreen> {
                                     ),
                                     'Balance :  ',
                                   ),
-                                  Container(
-                                    decoration:
-                                        BoxDecoration(border: Border.all()),
-                                    height: 36.4,
-                                    width:
-                                        MediaQuery.of(context).size.width / 3.5,
-                                    child: TextField(
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                      onChanged: (totalbalance) {
-                                        double totalbalance = double.tryParse(
-                                                _balanceController.text) ??
-                                            0;
-                                        setState(() {
-                                          balance = double.parse(
-                                              total.toStringAsFixed(2));
-                                          grandTotal = (total + totalbalance)
-                                              .toStringAsFixed(2);
-                                        });
-                                      },
-                                      textAlign: TextAlign.end,
-                                      controller: _balanceController,
-                                      keyboardType: TextInputType.number,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(1.0)),
-                                      ),
-                                      textInputAction: TextInputAction.done,
-                                    ),
-                                  )
+                                  billed
+                                      ? Text(balance.toString(),
+                                          style: const TextStyle(
+                                              wordSpacing: 2,
+                                              height: 2,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold))
+                                      : Container(
+                                          decoration: BoxDecoration(
+                                              border: Border.all()),
+                                          height: 36.4,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              3.5,
+                                          child: TextField(
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                            onChanged: (totalbalance) {
+                                              double totalbalance =
+                                                  double.tryParse(
+                                                          _balanceController
+                                                              .text) ??
+                                                      0;
+                                              setState(() {
+                                                balance = double.parse(
+                                                    _balanceController.text);
+                                                grandTotal =
+                                                    (total + totalbalance)
+                                                        .toStringAsFixed(2);
+                                              });
+                                            },
+                                            textAlign: TextAlign.end,
+                                            controller: _balanceController,
+                                            keyboardType: TextInputType.number,
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          1.0)),
+                                            ),
+                                            textInputAction:
+                                                TextInputAction.done,
+                                          ),
+                                        )
                                 ],
                               ),
                             ),
@@ -496,6 +512,8 @@ class _BillScreenState extends State<BillScreen> {
 
     try {
       for (int i = 0; i < getEntries.length; i++) {
+
+        //updating entries with true 
         billingFinalSnapshot
             .collection('users')
             .doc(user!.uid)
@@ -504,11 +522,15 @@ class _BillScreenState extends State<BillScreen> {
             .update({'Billed': true});
       }
       String res = await bill.newBill(
+
+        //bill is initializer for NewBillWidget Class
+        //newBill is method for creating new bill
+
         shopName: customer['ShopName'],
         customerName: customer['CustomerName'],
         contactNo: customer['ContactNo'],
         date: DateFormat('dd-MM-yyyy').format(DateTime.now()),
-        entry: billEntries,
+        entry: billEntriestoMap(getEntries),
         total: total,
         balance: _balanceController.text,
         grandTotal: grandTotal,
@@ -525,6 +547,8 @@ class _BillScreenState extends State<BillScreen> {
 }
 
 List<Map<String, dynamic>> billEntriestoMap(List<DocumentSnapshot> getEntries) {
+
+  // converting document snapshot to MAP before adding it to bill
   List<Map<String, dynamic>> billEntries = [];
   for (int i = 0; i < getEntries.length; i++) {
     Map<String, dynamic> singleEntry = {
@@ -588,7 +612,7 @@ class ShareData {
   return finalEntries;
 }*/
 
-double getSum(List<DocumentSnapshot> getEntries) {
+double getSum(List<DocumentSnapshot> getEntries) {//As named will sum the total value of each document
   double total = 0;
   for (int i = 0; i < getEntries.length; i++) {
     total += double.tryParse(getEntries[i]['Total']) ?? 0;

@@ -1,7 +1,10 @@
 import 'package:chickenaccount/resources/auth_methods.dart';
 import 'package:chickenaccount/screens/home.dart';
 import 'package:chickenaccount/screens/loginscreen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -29,6 +32,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void signUpUser() async {
+    SharedPreferences localData = await SharedPreferences.getInstance();
     setState(() {
       _isLoading = true;
     });
@@ -39,6 +43,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
         password: _passwordController.text);
 
     if (res == 'success') {
+      final User? user = FirebaseAuth.instance.currentUser;
+      DocumentSnapshot<Map<String, dynamic>> userSnapShot =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user!.uid)
+              .get();
+
+      localData.setString('FirmName', userSnapShot.data()?['firmname']);
+      localData.setString('Email', userSnapShot.data()?['email']);
+      localData.setString('Mobile', userSnapShot.data()?['mobile']);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const Home()),
@@ -47,7 +61,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() {
       _isLoading = false;
     });
-    
   }
 
   @override

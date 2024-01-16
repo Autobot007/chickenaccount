@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Bill {
   final String shopName;
   final String customerName;
@@ -25,6 +27,7 @@ class Bill {
         "Entries": entry,
         "Total": total,
         "Balance": balance,
-        "GrandTotal": grandTotal
+        "GrandTotal": grandTotal,
+        "TimeStamp":FieldValue.serverTimestamp()
       };
 }

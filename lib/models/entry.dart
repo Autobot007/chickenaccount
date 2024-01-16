@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Entry {
   final String date;
   final String shopName;
@@ -22,6 +24,7 @@ class Entry {
         "Weight": weight,
         "Rate": rate,
         "Total": total,
-        "Billed": false
+        "Billed": false,
+        "TimeStamp":FieldValue.serverTimestamp()
       };
 }

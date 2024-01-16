@@ -1,19 +1,17 @@
-import 'package:chickenaccount/screens/billscreen.dart';
 import 'package:chickenaccount/screens/drawer.dart';
-import 'package:chickenaccount/screens/newcustomer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-class NewBill extends StatefulWidget {
-  const NewBill({super.key});
+class OldDelieveryChallan extends StatefulWidget {
+  const OldDelieveryChallan({super.key});
 
   @override
-  State<NewBill> createState() => _NewBillState();
+  State<OldDelieveryChallan> createState() => _OldDelieveryChallanState();
 }
 
-class _NewBillState extends State<NewBill> {
+class _OldDelieveryChallanState extends State<OldDelieveryChallan> {
   final TextEditingController _shopNameController = TextEditingController();
   List<Map<String, dynamic>> entryList = [];
   final querySnapshotfirestore = FirebaseFirestore.instance;
@@ -21,12 +19,33 @@ class _NewBillState extends State<NewBill> {
   List<DocumentSnapshot> _entries = [];
   Set<int> _checkedItems = {};
   List<DocumentSnapshot> _selectedEntries = [];
-  String customerid = '';
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    if (_shopNameController.text.isEmpty) {
+      getAllEntry();
+    } else {
+      getEntry(_shopNameController.text);
+    }
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _shopNameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('New bill')),
+      appBar: AppBar(
+        title: Text('Old Entries'),
+      ),
       drawer: const Drawer1(),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width / 30),
@@ -44,11 +63,11 @@ class _NewBillState extends State<NewBill> {
                       //suffixIcon: const Icon(Icons.search),
                       suffixIcon: InkWell(
                           onTap: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const NewCustomer()),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) => const NewCustomer()),
+                            // );
                           },
                           child: const Icon(Icons.person_add)),
                       border: OutlineInputBorder(
@@ -66,7 +85,6 @@ class _NewBillState extends State<NewBill> {
                   },
                   onSuggestionSelected: (suggestion) {
                     _shopNameController.text = suggestion;
-
                     // Handle what happens when a suggestion is selected.
                   },
                 ),
@@ -76,9 +94,10 @@ class _NewBillState extends State<NewBill> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  _selectedEntries = [];
-                  _checkedItems = {};
-                  getEntry(_shopNameController.text);
+                  if (_shopNameController.text.isEmpty) {
+                  } else {
+                    getEntry(_shopNameController.text);
+                  }
                 },
                 child: const Text("Search"),
               )
@@ -87,10 +106,20 @@ class _NewBillState extends State<NewBill> {
               height: 10,
             ),
             Container(
-                height: MediaQuery.of(context).size.height / 2,
+                height: MediaQuery.of(context).size.height / 1.5,
                 child: ListView.builder(
                   itemBuilder: (context, index) {
-                    return CheckboxListTile(
+                    return ListTile(
+                      trailing: InkWell(
+                          onTap: () {
+                            _showConfirmationDialog(
+                                context, _entries[index].id);
+                            setState(() {});
+                          },
+                          child: Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          )),
                       title: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -113,25 +142,8 @@ class _NewBillState extends State<NewBill> {
                           ),
                         ],
                       ),
-                      tileColor: _checkedItems.contains(index)
-                          ? Colors.green[100]
-                          : Colors.white,
-                      value: _checkedItems.contains(index),
-                      onChanged: (bool? value) {
-                        setState(() {
-                          if (value!) {
-                            _checkedItems.add(index);
-                            _selectedEntries.add(_entries[index]);
-                            print(_selectedEntries);
-                          } else {
-                            _checkedItems.remove(index);
-                            _selectedEntries.remove(_entries[index]);
-                          }
+                      //_selectedEntries.add(_entries[index]);
 
-                          //_selectedEntries.add(_entries[index]);
-                          // print(_selectedEntries);
-                        });
-                      },
                       subtitle: Column(
                         children: [
                           Row(
@@ -220,17 +232,6 @@ class _NewBillState extends State<NewBill> {
             const SizedBox(
               height: 10,
             ),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BillScreen(
-                          entriesDocumentSnapshot: _selectedEntries,
-                        ),
-                      ));
-                },
-                child: const Text('Generate'))
           ],
         ),
       ),
@@ -238,7 +239,6 @@ class _NewBillState extends State<NewBill> {
   }
 
   Future<List<String>> getSuggestions(String query) async {
-    final User? _auth = FirebaseAuth.instance.currentUser;
     final querySnapshot = await FirebaseFirestore.instance
         .collection('users')
         .doc(_auth!.uid)
@@ -284,6 +284,23 @@ class _NewBillState extends State<NewBill> {
           .collection('entry')
           .where('ShopName', isEqualTo: query)
           .where('Billed', isEqualTo: false)
+          .get();
+      setState(() {
+        _entries = querySnapshot.docs;
+        print(_entries);
+      });
+    } catch (e) {
+      print("error fetching data");
+    }
+  }
+
+  Future<void> getAllEntry() async {
+    try {
+      QuerySnapshot querySnapshot = await querySnapshotfirestore
+          .collection('users')
+          .doc(_auth!.uid)
+          .collection('entry')
+          .where('Billed', isEqualTo: false)
           .orderBy('TimeStamp', descending: false)
           .get();
       setState(() {
@@ -294,7 +311,49 @@ class _NewBillState extends State<NewBill> {
       print("error fetching data");
     }
   }
+
+  Future<void> deleteEntry(String document) async {
+    try {
+      final deleteSnapshot = FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth!.uid)
+          .collection('entry')
+          .doc(document)
+          .delete();
+
+      initState();
+    } catch (e) {}
+  }
+
+  void _showConfirmationDialog(BuildContext context, String documentid) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Are you sure want to delete Entry?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('No'),
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(); // Return false when "No" is pressed.
+              },
+            ),
+            TextButton(
+              child: Text('Yes'),
+              onPressed: () {
+                deleteEntry(documentid);
+                Navigator.of(context)
+                    .pop(); // Return true when "Yes" is pressed.
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
+
 
 /*
     querySnapshot
@@ -321,3 +380,6 @@ class _NewBillState extends State<NewBill> {
 
     print(querySnapshot);*/
 
+
+
+  

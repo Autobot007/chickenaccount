@@ -1,8 +1,13 @@
 import 'package:chickenaccount/resources/auth_methods.dart';
 import 'package:chickenaccount/screens/billing.dart';
+import 'package:chickenaccount/screens/editprofile.dart';
 import 'package:chickenaccount/screens/loginscreen.dart';
+import 'package:chickenaccount/screens/mycustomers.dart';
+import 'package:chickenaccount/screens/newbill.dart';
 import 'package:chickenaccount/screens/newcustomer.dart';
-import 'package:chickenaccount/widgets/newcustomer.dart';
+import 'package:chickenaccount/screens/oldbillscreen.dart';
+import 'package:chickenaccount/screens/oldbillsearchlist.dart';
+import 'package:chickenaccount/screens/olddelieverychallan.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'deliverychallanentry.dart';
@@ -24,16 +29,19 @@ class _Drawer1State extends State<Drawer1> {
     SharedPreferences localData = await SharedPreferences.getInstance();
     tradersName = localData.getString('FirmName').toString();
     email = localData.getString('Email').toString();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDetails();
   }
 
   @override
   Widget build(
     BuildContext context,
   ) {
-    setState(() {
-      getDetails();
-    });
-
     return Drawer(
       // Add a ListView to the drawer. This ensures the user can scroll
       // through the options in the drawer if there isn't enough vertical
@@ -43,16 +51,48 @@ class _Drawer1State extends State<Drawer1> {
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
-              accountName: Text(
-                tradersName.toString(),
-                style: TextStyle(fontSize: 20),
+            arrowColor: Colors.black,
+            accountName: Text(
+              tradersName.toString(),
+              style: TextStyle(fontSize: 20),
+            ),
+            accountEmail: Text(
+              email.toString(),
+              style: TextStyle(fontSize: 15),
+            ),
+            otherAccountsPictures: [
+              GestureDetector(
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: ((context) => EditProfile()))),
+                child: CircleAvatar(
+                  child: Icon(Icons.edit),
+                ),
               ),
-              accountEmail: Text(
-                email.toString(),
-                style: TextStyle(fontSize: 15),
-              )),
+            ],
+          ),
           ListTile(
-            title: const Text('Delivery Chalan'),
+            title: const Text('My Customers'),
+            trailing: Icon(Icons.person),
+            onTap: () {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const MyCustomers()));
+              // Update the state of the app.
+              // ...
+            },
+          ),
+          ListTile(
+            title: const Text('Add new Customers'),
+            trailing: Icon(Icons.person_add),
+            onTap: () {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const NewCustomer()));
+              // Update the state of the app.
+              // ...
+            },
+          ),
+          ListTile(
+            title: const Text('Add Delivery Chalan'),
+            trailing: Icon(Icons.edit_calendar),
             onTap: () {
               Navigator.pushReplacement(
                   context,
@@ -63,34 +103,49 @@ class _Drawer1State extends State<Drawer1> {
             },
           ),
           ListTile(
-            title: const Text('Billing '),
-            onTap: () {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => const Billing()));
-              // Update the state of the app.
-              // ...
-            },
-          ),
-          ListTile(
-            title: const Text('Add new Customer '),
+            title: const Text('My Delivery Chalan'),
+            trailing: Icon(Icons.inventory_outlined),
             onTap: () {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          const NewCustomer())); // Update the state of the app.
-              // ...
-            },
-          ),
-          ListTile(
-            title: const Text('Sales Report '),
-            onTap: () {
+                      builder: (context) => const OldDelieveryChallan()));
               // Update the state of the app.
               // ...
             },
           ),
           ListTile(
+            title: const Text('New Bill '),
+            trailing: Icon(Icons.edit_document),
+            onTap: () {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const NewBill()));
+              // Update the state of the app.
+              // ...
+            },
+          ),
+          ListTile(
+            title: const Text('Old Bill '),
+            trailing: Icon(Icons.list_alt),
+            onTap: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const OldBillSearch()));
+              // Update the state of the app.
+              // ...
+            },
+          ),
+          // ListTile(
+          //   title: const Text('Sales Report '),
+          //   onTap: () {
+          //     // Update the state of the app.
+          //     // ...
+          //   },
+          // ),
+          ListTile(
             title: Text('Log Out'),
+            trailing: Icon(Icons.logout),
             onTap: () {
               showDialog(
                   context: context,

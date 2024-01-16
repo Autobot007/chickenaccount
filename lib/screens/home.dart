@@ -1,7 +1,11 @@
-import 'package:chickenaccount/screens/billing.dart';
 import 'package:chickenaccount/screens/deliverychallanentry.dart';
 import 'package:chickenaccount/screens/drawer.dart';
+import 'package:chickenaccount/screens/mycustomers.dart';
+import 'package:chickenaccount/screens/newbill.dart';
 import 'package:chickenaccount/screens/newcustomer.dart';
+import 'package:chickenaccount/screens/oldbillscreen.dart';
+import 'package:chickenaccount/screens/oldbillsearchlist.dart';
+import 'package:chickenaccount/screens/olddelieverychallan.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +40,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Trial version 1'),
+          title: Text(firmname),
         ),
         drawer: const Drawer1(),
         body: SingleChildScrollView(
@@ -47,13 +51,13 @@ class _HomeState extends State<Home> {
               Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             const SizedBox(height: 24),
             InkWell(
-                //delivery
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const DeliveryChallanEntry()),
+                        builder: (context) => const MyCustomers()),
                   );
+                  //Navigation to My Customers Page
                 },
                 child: Container(
                   width: double.infinity,
@@ -64,39 +68,16 @@ class _HomeState extends State<Home> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(4)))),
                   child: const Text(
-                    'Delivery Challan Entry',
+                    'My Customers',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                     ),
                   ),
                 )),
-            const SizedBox(height: 20),
-            InkWell(
-                //billing
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Billing()),
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: const ShapeDecoration(
-                      color: Colors.green,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(4)))),
-                  child: const Text(
-                    'Billing',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                  ),
-                )),
-            const SizedBox(height: 20),
+            SizedBox(
+              height: 10,
+            ),
             InkWell(
                 //new customer
                 onTap: () {
@@ -121,7 +102,115 @@ class _HomeState extends State<Home> {
                       fontSize: 20,
                     ),
                   ),
-                ))
+                )),
+            SizedBox(
+              height: 10,
+            ),
+            InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context, //Navigation to new Delivery Challan Page
+                    MaterialPageRoute(
+                        builder: (context) => const DeliveryChallanEntry()),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: const ShapeDecoration(
+                      color: Colors.green,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(4)))),
+                  child: const Text(
+                    'Delivery Challan Entry',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                )),
+            SizedBox(
+              height: 10,
+            ),
+            InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const OldDelieveryChallan()),
+                  );
+                  //Navigation to old Delievery Challan Page
+                },
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: const ShapeDecoration(
+                      color: Colors.green,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(4)))),
+                  child: const Text(
+                    'Old Delivery Entries',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                )),
+            SizedBox(
+              height: 10,
+            ),
+            InkWell(
+                //New Bill
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const NewBill()),
+                  );
+                  //Navigation to new Bill Page
+                },
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: const ShapeDecoration(
+                      color: Colors.green,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(4)))),
+                  child: const Text(
+                    'New Bill',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                )),
+            const SizedBox(height: 10),
+            InkWell(
+                //Old Bill
+                onTap: () {
+                  Navigator.push((context),
+                      MaterialPageRoute(builder: (context) => OldBillSearch()));
+                  //Naviagtion to Old Bill
+                },
+                child: Container(
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: const ShapeDecoration(
+                      color: Colors.green,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(4)))),
+                  child: const Text(
+                    'Old Bills',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                )),
+            const SizedBox(height: 10),
           ]),
         )));
   }

@@ -19,7 +19,7 @@ class _OldBillSearchState extends State<OldBillSearch> {
   List<DocumentSnapshot> _bill = [];
   final querySnapshotfirestore = FirebaseFirestore.instance;
   final User? _auth = FirebaseAuth.instance.currentUser;
-  Set<int> _checkedItems = {};
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,14 +81,14 @@ class _OldBillSearchState extends State<OldBillSearch> {
               height: 10,
             ),
             Container(
-                height: MediaQuery.of(context).size.height / 2,
+                height: MediaQuery.of(context).size.height / 1.5,
                 child: ListView.builder(
                   itemBuilder: (context, index) {
                     return ListTile(
                       onTap: () {
                         billDocumentSnapshot = _bill[index];
                         print(_bill[index]);
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => OldBillScreen(
@@ -171,7 +171,7 @@ class _OldBillSearchState extends State<OldBillSearch> {
           .doc(_auth!.uid)
           .collection('bill')
           .where('ShopName', isEqualTo: query)
-          .orderBy('Date', descending: true)
+          .orderBy('TimeStamp', descending: false)
           .get();
       setState(() {
         _bill = querySnapshot.docs;

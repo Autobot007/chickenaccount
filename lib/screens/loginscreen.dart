@@ -1,4 +1,3 @@
-import 'package:chickenaccount/models/user.dart' as model;
 import 'package:chickenaccount/resources/auth_methods.dart';
 import 'package:chickenaccount/screens/signupscreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

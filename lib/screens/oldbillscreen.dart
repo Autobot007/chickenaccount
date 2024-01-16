@@ -1,9 +1,10 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
-
 import 'package:chickenaccount/screens/billscreen.dart';
 import 'package:chickenaccount/screens/drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -22,21 +23,48 @@ class OldBillScreen extends StatefulWidget {
 
 class _OldBillScreenState extends State<OldBillScreen> {
   late DocumentSnapshot billDocumentsnapShot;
+  final User? user = FirebaseAuth.instance.currentUser;
+  final FirebaseFirestore editBillSnapshot = FirebaseFirestore.instance;
+  bool edit = false;
   String? tradersName = '';
   String? mobile = '';
   List<dynamic> entries = [];
+  String grandTotal = '0';
+  double balance = 0;
+  double total = 0;
+  String documentID = '';
+  TextEditingController _balanceController = TextEditingController();
   @override
   void initState() {
     super.initState();
     getDetails();
     billDocumentsnapShot = widget.billDocumentSnapshot;
+    documentID = billDocumentsnapShot.id;
     entries = billDocumentsnapShot['Entries'];
+    grandTotal = billDocumentsnapShot['GrandTotal'];
+    balance = double.tryParse(billDocumentsnapShot['Balance']) ?? 0;
+    total = billDocumentsnapShot['Total'];
+    setState(() {});
+  }
+
+  void updateBills(String documentID, String balance, String grandTotal) {
+    try {
+      editBillSnapshot
+          .collection('users')
+          .doc(user?.uid)
+          .collection('bill')
+          .doc(documentID)
+          .update({'Balance': balance, 'GrandTotal': grandTotal});
+      edit = false;
+      setState(() {});
+    } catch (e) {}
   }
 
   Future<void> getDetails() async {
     SharedPreferences localData = await SharedPreferences.getInstance();
     tradersName = localData.getString('FirmName');
     mobile = localData.getString('Mobile');
+    setState(() {});
   }
 
   ScreenshotController _screenshotController = ScreenshotController();
@@ -76,10 +104,18 @@ class _OldBillScreenState extends State<OldBillScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          InkWell(
+              child: Icon(Icons.edit),
+              onTap: () {
+                edit = true;
+                setState(() {});
+              })
+        ],
+      ),
       drawer: const Drawer1(),
       body: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -116,6 +152,9 @@ class _OldBillScreenState extends State<OldBillScreen> {
                             '($mobile)' //FirmName Mobile number
                             ,
                             style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 20,
                           ),
                           Container(
                             padding: EdgeInsets.symmetric(
@@ -340,22 +379,66 @@ class _OldBillScreenState extends State<OldBillScreen> {
                                     ),
                                     'Balance :  ',
                                   ),
-                                  Container(
-                                    padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                    alignment: Alignment.centerRight,
-                                    height: 36.4,
-                                    width:
-                                        MediaQuery.of(context).size.width / 3.5,
-                                    child: Text(
-                                      '${billDocumentsnapShot['Balance']}',
-                                      style: TextStyle(
-                                        wordSpacing: 10,
-                                        height: 2,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  )
+                                  edit
+                                      ? Container(
+                                          decoration: BoxDecoration(
+                                              border: Border.all()),
+                                          height: 36.4,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              3.5,
+                                          child: TextField(
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                            onChanged: (totalbalance) {
+                                              double totalbalance =
+                                                  double.tryParse(
+                                                          _balanceController
+                                                              .text) ??
+                                                      0;
+                                              setState(() {
+                                                balance = double.parse(
+                                                    totalbalance
+                                                        .toStringAsFixed(1));
+                                                grandTotal =
+                                                    (total + totalbalance)
+                                                        .toStringAsFixed(1);
+                                              });
+                                            },
+                                            textAlign: TextAlign.end,
+                                            controller: _balanceController,
+                                            keyboardType: TextInputType.number,
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          1.0)),
+                                            ),
+                                            textInputAction:
+                                                TextInputAction.done,
+                                          ),
+                                        )
+                                      : Container(
+                                          padding:
+                                              EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                          alignment: Alignment.centerRight,
+                                          height: 36.4,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              3.5,
+                                          child: Text(
+                                            balance.toStringAsFixed(1),
+                                            style: TextStyle(
+                                              wordSpacing: 10,
+                                              height: 2,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        )
                                 ],
                               ),
                             ),
@@ -385,7 +468,7 @@ class _OldBillScreenState extends State<OldBillScreen> {
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
-                                'Total Bill Amount : ${billDocumentsnapShot['GrandTotal']}',
+                                'Total Bill Amount : $grandTotal',
                               ),
                             ),
                           ),
@@ -397,11 +480,18 @@ class _OldBillScreenState extends State<OldBillScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    ElevatedButton(
-                        onPressed: () async {
-                          saveToGallery(context);
-                        },
-                        child: const Text('Share'))
+                    edit
+                        ? ElevatedButton(
+                            onPressed: () async {
+                              updateBills(documentID,
+                                  balance.toStringAsFixed(1), grandTotal);
+                            },
+                            child: const Text('Update Bill'))
+                        : ElevatedButton(
+                            onPressed: () async {
+                              saveToGallery(context);
+                            },
+                            child: const Text('Share'))
                   ],
                 )
               ],

@@ -31,7 +31,7 @@ class _BillingState extends State<Billing> {
               InkWell(
                   onTap: () {
                     // Inside a widget's onPressed or other event handler
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
@@ -60,7 +60,7 @@ class _BillingState extends State<Billing> {
               ),
               InkWell(
                   onTap: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
